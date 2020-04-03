@@ -31,10 +31,10 @@ public interface AddressDatabaseService {
   AddressDatabaseService fetchAddress(String id, Handler<AsyncResult<JsonObject>> resultHandler);
 
   @Fluent
-  AddressDatabaseService createAddress(Address address, Handler<AsyncResult<Void>> resultHandler);
+  AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler);
 
   @Fluent
-  AddressDatabaseService saveAddress(Address address, Handler<AsyncResult<Void>> resultHandler);
+  AddressDatabaseService saveAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler);
 
   @Fluent
   AddressDatabaseService deleteAddress(int id, Handler<AsyncResult<Void>> resultHandler);
@@ -49,7 +49,7 @@ public interface AddressDatabaseService {
   // tag::proxy[]
   @GenIgnore
   static AddressDatabaseService createProxy(Vertx vertx, String address) {
-    return null;
+    return new AddressDatabaseServiceVertxEBProxy(vertx, address);
   }
   // end::proxy[]
 }

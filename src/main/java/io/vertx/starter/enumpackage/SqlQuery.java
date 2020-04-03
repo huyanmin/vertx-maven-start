@@ -5,6 +5,7 @@ package io.vertx.starter.enumpackage;
  * @create 2020/4/3 9:48
  */
 public enum SqlQuery {
+  CREATE_PAGES_TABLE,
   ALL_ADDRESSES,
   GET_ADDRESS,
   CREATE_ADDRESS,

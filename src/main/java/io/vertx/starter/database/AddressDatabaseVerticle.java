@@ -2,7 +2,9 @@ package io.vertx.starter.database;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.serviceproxy.ServiceBinder;
 import io.vertx.starter.database.impl.AddressDatabaseServiceImpl;
 import io.vertx.starter.enumpackage.SqlQuery;
 import io.vertx.starter.utils.JdbcUtils;
@@ -21,16 +23,25 @@ public class AddressDatabaseVerticle extends AbstractVerticle {
 
   public static final HashMap<SqlQuery, String> sqlQueries = new HashMap<>();
 
-  public static void main(String[] args) {
-    Runner.runExample(AddressDatabaseVerticle.class);
-  }
+//  public static void main(String[] args) {
+//    Runner.runExample(AddressDatabaseVerticle.class);
+//  }
 
   @Override
   public void start(Promise<Void> promise) throws Exception {
     HashMap<SqlQuery, String> sqlQueryStringHashMap = loadSqlQueries();
-    JDBCClient dbClient = JdbcUtils.getDbClient(vertx);
+    JsonObject dbConfig = new JsonObject();
+    dbConfig.put("url", "jdbc:mysql://localhost:3306/address?useUnicode=true&characterEncoding=utf-8&useSSL=false");
+    dbConfig.put("driver_class", "com.mysql.jdbc.Driver");
+    dbConfig.put("user", "root");
+    dbConfig.put("password", "123456");
+    JDBCClient dbClient = JDBCClient.createShared(vertx, dbConfig);
     AddressDatabaseService.create(dbClient, sqlQueryStringHashMap, handle->{
       if(handle.succeeded()){
+        //Register the handler
+        new ServiceBinder(vertx)
+          .setAddress("database-service-address")
+          .register(AddressDatabaseService.class, handle.result());
         promise.complete();
       }else {
         promise.fail(handle.cause());

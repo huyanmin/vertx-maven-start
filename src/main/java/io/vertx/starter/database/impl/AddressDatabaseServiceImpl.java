@@ -6,6 +6,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.ext.sql.SQLConnection;
 import io.vertx.starter.database.AddressDatabaseService;
 import io.vertx.starter.entity.Address;
 import io.vertx.starter.enumpackage.SqlQuery;
@@ -67,35 +68,35 @@ public class AddressDatabaseServiceImpl implements AddressDatabaseService {
   }
 
   @Override
-  public AddressDatabaseService createAddress(Address address, Handler<AsyncResult<Void>> resultHandler) {
-    address.setId(UUID.randomUUID().toString());
-    JsonArray data = new JsonArray().add(address.getId()).add(address.getName())
-      .add(address.getPhone()).add(address.getCardNo()).add(address.getAddressType())
-      .add(address.getIsDefault()).add(address.getAddress()).add(address.getRemark());
-    dbClient.updateWithParams(sqlQueries.get(SqlQuery.CREATE_ADDRESS), data, res -> {
-      if (res.succeeded()) {
-        resultHandler.handle(Future.succeededFuture());
-      } else {
-        LOGGER.error("Database query error", res.cause());
-        resultHandler.handle(Future.failedFuture(res.cause()));
-      }
-    });
+  public AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler) {
+//    address.setId(UUID.randomUUID().toString());
+//    JsonArray data = new JsonArray().add(address.getId()).add(address.getName())
+//      .add(address.getPhone()).add(address.getCardNo()).add(address.getAddressType())
+//      .add(address.getIsDefault()).add(address.getAddress()).add(address.getRemark());
+//    dbClient.updateWithParams(sqlQueries.get(SqlQuery.CREATE_ADDRESS), data, res -> {
+//      if (res.succeeded()) {
+//        resultHandler.handle(Future.succeededFuture());
+//      } else {
+//        LOGGER.error("Database query error", res.cause());
+//        resultHandler.handle(Future.failedFuture(res.cause()));
+//      }
+//    });
     return this;
   }
 
   @Override
-  public AddressDatabaseService saveAddress(Address address, Handler<AsyncResult<Void>> resultHandler) {
-    JsonArray data = new JsonArray().add(address.getName()).add(address.getPhone())
-                    .add(address.getAddressType()).add(address.getIsDefault()).add(address.getAddress())
-                    .add(address.getRemark()).add(address.getId());
-    dbClient.updateWithParams(sqlQueries.get(SqlQuery.SAVE_ADDRESS), data, res -> {
-      if (res.succeeded()) {
-        resultHandler.handle(Future.succeededFuture());
-      } else {
-        LOGGER.error("Database query error", res.cause());
-        resultHandler.handle(Future.failedFuture(res.cause()));
-      }
-    });
+  public AddressDatabaseService saveAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler) {
+//    JsonArray data = new JsonArray().add(address.getName()).add(address.getPhone())
+//                    .add(address.getAddressType()).add(address.getIsDefault()).add(address.getAddress())
+//                    .add(address.getRemark()).add(address.getId());
+//    dbClient.updateWithParams(sqlQueries.get(SqlQuery.SAVE_ADDRESS), data, res -> {
+//      if (res.succeeded()) {
+//        resultHandler.handle(Future.succeededFuture());
+//      } else {
+//        LOGGER.error("Database query error", res.cause());
+//        resultHandler.handle(Future.failedFuture(res.cause()));
+//      }
+//    });
     return this;
   }
 

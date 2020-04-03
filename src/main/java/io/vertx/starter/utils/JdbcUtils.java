@@ -12,7 +12,7 @@ public class JdbcUtils {
 
   public static JDBCClient getDbClient(Vertx vertx){
     JsonObject dbConfig = new JsonObject();
-    dbConfig.put("url", "jdbc:mysql://localhost:3306/address");
+    dbConfig.put("url", "jdbc:mysql://localhost:3306/address?useUnicode=true&characterEncoding=utf-8&useSSL=false");
     dbConfig.put("driver_class", "com.mysql.jdbc.Driver");
     dbConfig.put("user", "root");
     dbConfig.put("password", "123456");
