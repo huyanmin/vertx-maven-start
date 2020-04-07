@@ -30,12 +30,8 @@ public class AddressDatabaseVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> promise) throws Exception {
     HashMap<SqlQuery, String> sqlQueryStringHashMap = loadSqlQueries();
-    JsonObject dbConfig = new JsonObject();
-    dbConfig.put("url", "jdbc:mysql://localhost:3306/address?useUnicode=true&characterEncoding=utf-8&useSSL=false");
-    dbConfig.put("driver_class", "com.mysql.jdbc.Driver");
-    dbConfig.put("user", "root");
-    dbConfig.put("password", "123456");
-    JDBCClient dbClient = JDBCClient.createShared(vertx, dbConfig);
+
+    JDBCClient dbClient = JdbcUtils.getDbClient(vertx);
     AddressDatabaseService.create(dbClient, sqlQueryStringHashMap, handle->{
       if(handle.succeeded()){
         //Register the handler

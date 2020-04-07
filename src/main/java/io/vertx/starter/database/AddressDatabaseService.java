@@ -28,7 +28,7 @@ public interface AddressDatabaseService {
   AddressDatabaseService fetchAllAddresses(Handler<AsyncResult<List<JsonObject>>> resultHandler);
 
   @Fluent
-  AddressDatabaseService fetchAddress(String id, Handler<AsyncResult<JsonObject>> resultHandler);
+  AddressDatabaseService fetchAddress(String id, Handler<AsyncResult<List<JsonObject>>> resultHandler);
 
   @Fluent
   AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler);
@@ -37,7 +37,7 @@ public interface AddressDatabaseService {
   AddressDatabaseService saveAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler);
 
   @Fluent
-  AddressDatabaseService deleteAddress(int id, Handler<AsyncResult<Void>> resultHandler);
+  AddressDatabaseService deleteAddress(String id, Handler<AsyncResult<Void>> resultHandler);
 
   // tag::create[]
   @GenIgnore

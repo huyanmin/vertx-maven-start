@@ -50,15 +50,10 @@ public class AddressDatabaseServiceImpl implements AddressDatabaseService {
   }
 
   @Override
-  public AddressDatabaseService fetchAddress(String id, Handler<AsyncResult<JsonObject>> resultHandler) {
+  public AddressDatabaseService fetchAddress(String id, Handler<AsyncResult<List<JsonObject>>> resultHandler) {
     dbClient.queryWithParams(sqlQueries.get(SqlQuery.GET_ADDRESS), new JsonArray().add(id), fetch -> {
       if (fetch.succeeded()) {
-        JsonObject jsonObject = new JsonObject();
-        List<JsonObject> rows = fetch.result().getRows();
-        if(rows.size() > 0){
-          jsonObject = rows.get(0);
-        }
-        resultHandler.handle(Future.succeededFuture(jsonObject));
+        resultHandler.handle(Future.succeededFuture(fetch.result().getRows()));
       } else {
         LOGGER.error("Database query error", fetch.cause());
         resultHandler.handle(Future.failedFuture(fetch.cause()));
@@ -69,39 +64,39 @@ public class AddressDatabaseServiceImpl implements AddressDatabaseService {
 
   @Override
   public AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler) {
-//    address.setId(UUID.randomUUID().toString());
-//    JsonArray data = new JsonArray().add(address.getId()).add(address.getName())
-//      .add(address.getPhone()).add(address.getCardNo()).add(address.getAddressType())
-//      .add(address.getIsDefault()).add(address.getAddress()).add(address.getRemark());
-//    dbClient.updateWithParams(sqlQueries.get(SqlQuery.CREATE_ADDRESS), data, res -> {
-//      if (res.succeeded()) {
-//        resultHandler.handle(Future.succeededFuture());
-//      } else {
-//        LOGGER.error("Database query error", res.cause());
-//        resultHandler.handle(Future.failedFuture(res.cause()));
-//      }
-//    });
+    String id = UUID.randomUUID().toString().replace("-","");
+    JsonArray data = new JsonArray().add(id).add(jsonObject.getValue("name"))
+      .add(jsonObject.getValue("phone")).add(jsonObject.getValue("cardNo")).add(jsonObject.getValue("addressType"))
+      .add(jsonObject.getValue("isDefault")).add(jsonObject.getValue("address")).add(jsonObject.getValue("remark"));
+    dbClient.updateWithParams(sqlQueries.get(SqlQuery.CREATE_ADDRESS), data, res -> {
+      if (res.succeeded()) {
+        resultHandler.handle(Future.succeededFuture());
+      } else {
+        LOGGER.error("Database query error", res.cause());
+        resultHandler.handle(Future.failedFuture(res.cause()));
+      }
+    });
     return this;
   }
 
   @Override
   public AddressDatabaseService saveAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler) {
-//    JsonArray data = new JsonArray().add(address.getName()).add(address.getPhone())
-//                    .add(address.getAddressType()).add(address.getIsDefault()).add(address.getAddress())
-//                    .add(address.getRemark()).add(address.getId());
-//    dbClient.updateWithParams(sqlQueries.get(SqlQuery.SAVE_ADDRESS), data, res -> {
-//      if (res.succeeded()) {
-//        resultHandler.handle(Future.succeededFuture());
-//      } else {
-//        LOGGER.error("Database query error", res.cause());
-//        resultHandler.handle(Future.failedFuture(res.cause()));
-//      }
-//    });
+    JsonArray data = new JsonArray().add(jsonObject.getValue("name")).add(jsonObject.getValue("phone"))
+      .add(jsonObject.getValue("addressType")).add(jsonObject.getValue("isDefault"))
+      .add(jsonObject.getValue("address")).add(jsonObject.getValue("remark")).add(jsonObject.getValue("id"));
+    dbClient.updateWithParams(sqlQueries.get(SqlQuery.SAVE_ADDRESS), data, res -> {
+      if (res.succeeded()) {
+        resultHandler.handle(Future.succeededFuture());
+      } else {
+        LOGGER.error("Database query error", res.cause());
+        resultHandler.handle(Future.failedFuture(res.cause()));
+      }
+    });
     return this;
   }
 
   @Override
-  public AddressDatabaseService deleteAddress(int id, Handler<AsyncResult<Void>> resultHandler) {
+  public AddressDatabaseService deleteAddress(String id, Handler<AsyncResult<Void>> resultHandler) {
     JsonArray data = new JsonArray().add(id);
     dbClient.updateWithParams(sqlQueries.get(SqlQuery.DELETE_ADDRESS), data, res -> {
       if (res.succeeded()) {

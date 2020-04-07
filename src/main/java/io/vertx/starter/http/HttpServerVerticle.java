@@ -1,8 +1,11 @@
 package io.vertx.starter.http;
 
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -53,31 +56,82 @@ public class HttpServerVerticle extends AbstractVerticle {
       });
   }
 
+  /**
+   * 查询所有收货地址
+   * @param routingContext
+   */
   private void indexHandler(RoutingContext routingContext) {
     dbService.fetchAllAddresses(reply -> {
       if (reply.succeeded()) {
         routingContext.response().putHeader("content-type", "application/json").end(reply.result().toString());
-
       } else {
         routingContext.fail(reply.cause());
       }
     });
   }
 
+  /**
+   * 根据id查询收获地址
+   * @param routingContext
+   */
   private void pageRenderingHandler(RoutingContext routingContext) {
-
+    String id = routingContext.request().getParam("id");
+    dbService.fetchAddress(id, response->{
+      if(response.succeeded()){
+        routingContext.response().putHeader("content-type", "application/json").end(response.result().toString());
+      }else {
+        routingContext.fail(response.cause());
+      }
+    });
   }
 
+  /**
+   * 修改地址
+   * @param routingContext
+   */
   private void pageUpdateHandler(RoutingContext routingContext) {
-
+    Buffer body = routingContext.getBody();
+    JsonObject jsonObject = new JsonObject(body.toString());
+    dbService.saveAddress(jsonObject, reply->{
+      if(reply.succeeded()){
+        routingContext.response().end("update address successfully!");
+      }else {
+        routingContext.fail(reply.cause());
+      }
+    });
   }
 
+  /**
+   * 新增地址
+   * @param routingContext
+   */
   private void pageCreateHandler(RoutingContext routingContext) {
-
+    Buffer body = routingContext.getBody();
+    JsonObject jsonObject = new JsonObject(body.toString());
+    dbService.createAddress(jsonObject, reply->{
+      if(reply.succeeded()){
+        routingContext.response().end("create address successfully!");
+      }else {
+        routingContext.fail(reply.cause());
+      }
+    });
   }
 
+  /**
+   * 删除地址
+   * @param routingContext
+   */
   private void pageDeletionHandler(RoutingContext routingContext) {
-
+    Buffer body = routingContext.getBody();
+    JsonObject jsonObject = new JsonObject(body.toString());
+    String id = jsonObject.getValue("id").toString();
+    dbService.deleteAddress(id, reply->{
+      if(reply.succeeded()){
+        routingContext.response().end("delete address successfully!");
+      }else {
+        routingContext.fail(reply.cause());
+      }
+    });
   }
 
 }
