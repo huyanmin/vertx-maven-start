@@ -10,7 +10,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.starter.database.impl.AddressDatabaseServiceImpl;
-import io.vertx.starter.entity.Address;
 import io.vertx.starter.enumpackage.SqlQuery;
 
 import java.util.HashMap;
@@ -31,7 +30,7 @@ public interface AddressDatabaseService {
   AddressDatabaseService fetchAddress(String id, Handler<AsyncResult<List<JsonObject>>> resultHandler);
 
   @Fluent
-  AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler);
+  AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<JsonObject>> resultHandler);
 
   @Fluent
   AddressDatabaseService saveAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler);

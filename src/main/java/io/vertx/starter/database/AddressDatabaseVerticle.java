@@ -2,13 +2,10 @@ package io.vertx.starter.database;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.serviceproxy.ServiceBinder;
-import io.vertx.starter.database.impl.AddressDatabaseServiceImpl;
 import io.vertx.starter.enumpackage.SqlQuery;
 import io.vertx.starter.utils.JdbcUtils;
-import io.vertx.starter.utils.Runner;
 
 import java.io.IOException;
 import java.io.InputStream;

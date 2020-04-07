@@ -6,9 +6,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
-import io.vertx.ext.sql.SQLConnection;
 import io.vertx.starter.database.AddressDatabaseService;
-import io.vertx.starter.entity.Address;
 import io.vertx.starter.enumpackage.SqlQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,14 +61,15 @@ public class AddressDatabaseServiceImpl implements AddressDatabaseService {
   }
 
   @Override
-  public AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler) {
+  public AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<JsonObject>> resultHandler) {
     String id = UUID.randomUUID().toString().replace("-","");
     JsonArray data = new JsonArray().add(id).add(jsonObject.getValue("name"))
       .add(jsonObject.getValue("phone")).add(jsonObject.getValue("cardNo")).add(jsonObject.getValue("addressType"))
       .add(jsonObject.getValue("isDefault")).add(jsonObject.getValue("address")).add(jsonObject.getValue("remark"));
     dbClient.updateWithParams(sqlQueries.get(SqlQuery.CREATE_ADDRESS), data, res -> {
       if (res.succeeded()) {
-        resultHandler.handle(Future.succeededFuture());
+        jsonObject.put("id", id);
+        resultHandler.handle(Future.succeededFuture(jsonObject));
       } else {
         LOGGER.error("Database query error", res.cause());
         resultHandler.handle(Future.failedFuture(res.cause()));
