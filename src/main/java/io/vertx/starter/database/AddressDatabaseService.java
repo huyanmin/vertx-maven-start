@@ -38,6 +38,9 @@ public interface AddressDatabaseService {
   @Fluent
   AddressDatabaseService deleteAddress(String id, Handler<AsyncResult<Void>> resultHandler);
 
+  @Fluent
+  AddressDatabaseService deleteAllAddress(Handler<AsyncResult<Void>> resultHandler);
+
   // tag::create[]
   @GenIgnore
   static AddressDatabaseService create(JDBCClient dbClient, HashMap<SqlQuery, String> sqlQueries, Handler<AsyncResult<AddressDatabaseService>> readyHandler) {

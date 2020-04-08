@@ -19,7 +19,7 @@ public class AddressRedisVerticle extends AbstractVerticle {
     RedisOptions config = new RedisOptions()
       .addConnectionString("redis://127.0.0.1:6379/1");
     Redis client = Redis.createClient(vertx, config);
-    AddressRedisService.create(client, vertx, handle->{
+    AddressRedisService.create(client, handle->{
       if(handle.succeeded()){
         new ServiceBinder(vertx)
           .setAddress("redis-service-address")

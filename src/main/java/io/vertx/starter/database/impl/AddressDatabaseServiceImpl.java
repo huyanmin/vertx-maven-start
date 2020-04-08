@@ -107,4 +107,17 @@ public class AddressDatabaseServiceImpl implements AddressDatabaseService {
     });
     return this;
   }
+
+  @Override
+  public AddressDatabaseService deleteAllAddress(Handler<AsyncResult<Void>> resultHandler) {
+    dbClient.update(sqlQueries.get(SqlQuery.DELETE_ALL_ADDRESS), res -> {
+      if (res.succeeded()) {
+        resultHandler.handle(Future.succeededFuture());
+      } else {
+        LOGGER.error("Database query error", res.cause());
+        resultHandler.handle(Future.failedFuture(res.cause()));
+      }
+    });
+    return this;
+  }
 }

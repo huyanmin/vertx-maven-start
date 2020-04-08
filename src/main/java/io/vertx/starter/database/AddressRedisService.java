@@ -39,8 +39,8 @@ public interface AddressRedisService {
 
   // tag::create[]
   @GenIgnore
-  static AddressRedisService create(Redis client, Vertx vertx, Handler<AsyncResult<AddressRedisService>> readyHandler) {
-    return new AddressRedisServiceImpl(client, vertx, readyHandler);
+  static AddressRedisService create(Redis client, Handler<AsyncResult<AddressRedisService>> readyHandler) {
+    return new AddressRedisServiceImpl(client, readyHandler);
   }
 
   @GenIgnore

@@ -20,18 +20,11 @@ public class AddressRedisServiceImpl implements AddressRedisService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AddressRedisServiceImpl.class);
 
-  long DEFAULT_EXPIRE = 3600;
-
-  private final Vertx vertx;
-  //默认值
-  private String host = "localhost";
-  private int port = 6379;
 
   private Redis client;
 
 
-  public AddressRedisServiceImpl(Redis client, Vertx vertx, Handler<AsyncResult<AddressRedisService>> readyHandler) {
-    this.vertx = vertx;
+  public AddressRedisServiceImpl(Redis client, Handler<AsyncResult<AddressRedisService>> readyHandler) {
     this.client = client;
     readyHandler.handle(Future.succeededFuture(this));
   }
@@ -95,7 +88,6 @@ public class AddressRedisServiceImpl implements AddressRedisService {
         }
       });
     });
-
     return this;
   }
 
@@ -113,7 +105,6 @@ public class AddressRedisServiceImpl implements AddressRedisService {
         }
       });
     });
-
     return this;
   }
 
@@ -132,7 +123,6 @@ public class AddressRedisServiceImpl implements AddressRedisService {
         }
       });
     });
-
-    return null;
+    return this;
   }
 }

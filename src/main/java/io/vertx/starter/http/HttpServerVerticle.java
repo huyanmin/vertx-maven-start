@@ -1,6 +1,5 @@
 package io.vertx.starter.http;
 
-import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
@@ -9,14 +8,18 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.starter.constant.Constant;
 import io.vertx.starter.database.AddressDatabaseService;
 import io.vertx.starter.database.AddressRedisService;
+import io.vertx.starter.utils.HttpUtils;
+import io.vertx.starter.utils.PropertiesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
+
+import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
  * @Author Ginny Hu
@@ -25,11 +28,6 @@ import java.util.Objects;
 public class HttpServerVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerVerticle.class);
 
-  public static final String CONFIG_HTTP_SERVER_PORT = "http.server.port";
-  public static final String CONFIG_ADDRESS_DB_QUEUE = "database-service-address";
-  public static final String CONFIG_REDIS_QUEUE = "redis-service-address";
-
-
   private AddressDatabaseService dbService;
 
   private AddressRedisService redisService;
@@ -37,13 +35,16 @@ public class HttpServerVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> promise) throws Exception {
     HttpServer server = vertx.createHttpServer();
-    String addressDbQueue = config().getString(CONFIG_ADDRESS_DB_QUEUE, "database-service-address"); // <1>
-    String addressRedisQueue = config().getString(CONFIG_REDIS_QUEUE, "redis-service-address"); // <1>
+    String addressDbQueue = config().getString(Constant.CONFIG_ADDRESS_DB_QUEUE, Constant.CONFIG_ADDRESS_DB_QUEUE); // <1>
+    String addressRedisQueue = config().getString(Constant.CONFIG_REDIS_QUEUE, Constant.CONFIG_REDIS_QUEUE); // <1>
+
+    //读取配置文件
+    PropertiesUtils propertiesUtils = new PropertiesUtils(Constant.CONFIG_HTTP_FILENAME);
+    Properties queriesProps = propertiesUtils.readProperties();
 
     //创建代理
     dbService = AddressDatabaseService.createProxy(vertx, addressDbQueue);
     redisService = AddressRedisService.createProxy(vertx, addressRedisQueue);
-
 
     Router router = Router.router(vertx);
     router.get("/").handler(this::indexHandler);
@@ -52,13 +53,15 @@ public class HttpServerVerticle extends AbstractVerticle {
     router.post("/address/save").handler(this::pageUpdateHandler);
     router.post("/address/create").handler(this::pageCreateHandler);
     router.post("/address/delete").handler(this::pageDeletionHandler);
+    router.post("/address/delete/all").handler(this::pageDeletionAllHandler);
 
-    int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
+    Integer port = Integer.parseInt(queriesProps.getProperty(Constant.CONFIG_HTTP_SERVER_PORT));
+    int portNumber = config().getInteger(Constant.CONFIG_HTTP_SERVER_PORT, port);
     server
       .requestHandler(router)
       .listen(portNumber, ar -> {
         if (ar.succeeded()) {
-          LOGGER.info("HTTP server running on port " + 8080);
+          LOGGER.info("HTTP server running on port " + port);
           promise.complete();
         } else {
           LOGGER.error("Could not start a HTTP server", ar.cause());
@@ -74,7 +77,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   private void indexHandler(RoutingContext routingContext) {
     dbService.fetchAllAddresses(reply -> {
       if (reply.succeeded()) {
-        routingContext.response().putHeader("content-type", "application/json").end(reply.result().toString());
+        HttpUtils.fireJsonResponse(routingContext.response(), HTTP_OK, reply.result().toString());
       } else {
         routingContext.fail(reply.cause());
       }
@@ -92,14 +95,14 @@ public class HttpServerVerticle extends AbstractVerticle {
         routingContext.response().end(response.cause().getMessage());
       }
       if(Objects.nonNull(response.result()) && response.result().size() > 0){
-        routingContext.response().putHeader("content-type", "application/json; charset=utf-8").end(response.result().toString());
+        HttpUtils.fireJsonResponse(routingContext.response(), HTTP_OK, response.result().toString());
       }else {
         dbService.fetchAddress(id, result->{
           if(response.succeeded()){
               if(Objects.nonNull(result.result()) && response.result().size() > 0){
-                routingContext.response().putHeader("content-type", "application/json; charset=utf-8").end(result.result().toString());
+                HttpUtils.fireJsonResponse(routingContext.response(), HTTP_OK, response.result().toString());
               }else {
-                routingContext.response().putHeader("content-type", "application/json; charset=utf-8").end("无法获取到该数据");
+                HttpUtils.fireJsonResponse(routingContext.response(), HTTP_OK, "not find address data!");
               }
           }else {
             routingContext.fail(response.cause());
@@ -151,12 +154,36 @@ public class HttpServerVerticle extends AbstractVerticle {
     Buffer body = routingContext.getBody();
     JsonObject jsonObject = new JsonObject(body.toString());
     String id = jsonObject.getValue("id").toString();
-    dbService.deleteAddress(id, reply->{
+    if(Objects.nonNull(id)){
+      dbService.deleteAddress(id, reply->{
+        if(reply.succeeded()){
+          redisService.delAddressCache(id, res->{
+            res.succeeded();
+          });
+          routingContext.response().end("delete address successfully!");
+        }else {
+          routingContext.fail(reply.cause());
+        }
+      });
+    }else {
+      dbService.deleteAllAddress(reply->{
+        if(reply.succeeded()){
+          routingContext.response().end("delete all address successfully!");
+        }else {
+          routingContext.fail(reply.cause());
+        }
+      });
+    }
+  }
+
+  /**
+   * 删除所有地址
+   * @param routingContext
+   */
+  private void pageDeletionAllHandler(RoutingContext routingContext) {
+    dbService.deleteAllAddress(reply->{
       if(reply.succeeded()){
-        redisService.delAddressCache(id, res->{
-          res.succeeded();
-        });
-        routingContext.response().end("delete address successfully!");
+        routingContext.response().end("delete all address successfully!");
       }else {
         routingContext.fail(reply.cause());
       }

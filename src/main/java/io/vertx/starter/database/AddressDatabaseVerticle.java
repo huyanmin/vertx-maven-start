@@ -6,6 +6,8 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.serviceproxy.ServiceBinder;
 import io.vertx.starter.enumpackage.SqlQuery;
 import io.vertx.starter.utils.JdbcUtils;
+import io.vertx.starter.utils.PropertiesUtils;
+import io.vertx.starter.utils.Runner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +54,8 @@ public class AddressDatabaseVerticle extends AbstractVerticle {
    * @throws IOException
    */
   private HashMap<SqlQuery, String> loadSqlQueries() throws IOException {
-    Properties queriesProps = readProperties("/db-queries.properties");
+    PropertiesUtils propertiesUtils = new PropertiesUtils("/config/db-queries.properties");
+    Properties queriesProps = propertiesUtils.readProperties();
     SqlQuery[] values = SqlQuery.values();
     for (int i = 0; i < values.length; i++) {
       sqlQueries.put(values[i], queriesProps.getProperty(values[i].name().toLowerCase().replace("_","-")));
@@ -60,26 +63,26 @@ public class AddressDatabaseVerticle extends AbstractVerticle {
     return sqlQueries;
   }
 
-  /**
-   * 读取配置文件
-   * @param path
-   * @return
-   */
-  private Properties readProperties(String path){
-    InputStream queriesInputStream = getClass().getResourceAsStream(path);
-    Properties queriesProps = new Properties();
-    try {
-      queriesProps.load(queriesInputStream);
-      return queriesProps;
-    } catch (IOException e) {
-      e.printStackTrace();
-    }finally {
-      try {
-        queriesInputStream.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-    return queriesProps;
-  }
+//  /**
+//   * 读取配置文件
+//   * @param path
+//   * @return
+//   */
+//  private Properties readProperties(String path){
+//    InputStream queriesInputStream = getClass().getResourceAsStream(path);
+//    Properties queriesProps = new Properties();
+//    try {
+//      queriesProps.load(queriesInputStream);
+//      return queriesProps;
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }finally {
+//      try {
+//        queriesInputStream.close();
+//      } catch (IOException e) {
+//        e.printStackTrace();
+//      }
+//    }
+//    return queriesProps;
+//  }
 }

@@ -9,10 +9,6 @@ import io.vertx.starter.utils.Runner;
 
 public class MainVerticle extends AbstractVerticle {
 
-  public static void main(String[] args) {
-    Runner.runExample(MainVerticle.class);
-  }
-
   @Override
   public void start(Promise<Void> promise) throws Exception {
     Promise<String> dbVerticleDeployment = Promise.promise();
