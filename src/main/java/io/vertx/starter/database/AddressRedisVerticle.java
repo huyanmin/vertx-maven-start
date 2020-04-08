@@ -5,6 +5,7 @@ import io.vertx.core.Promise;
 import io.vertx.redis.RedisClient;
 import io.vertx.redis.RedisOptions;
 import io.vertx.serviceproxy.ServiceBinder;
+import io.vertx.starter.constant.Constant;
 
 /**
  * @Author Ginny Hu
@@ -14,16 +15,15 @@ public class AddressRedisVerticle extends AbstractVerticle {
 
   @Override
   public void start(Promise<Void> promise) throws Exception {
-    // 连接Redis的参数
+
     RedisOptions redisOptions = new RedisOptions();
 
-    // 获取到Redis客户端
     RedisClient redisClient = RedisClient.create(vertx,redisOptions);
 
    AddressRedisService.create(redisClient, handle->{
       if(handle.succeeded()){
         new ServiceBinder(vertx)
-          .setAddress("redis-service-address")
+          .setAddress(Constant.CONFIG_REDIS_QUEUE)
           .register(AddressRedisService.class, handle.result());
         promise.complete();
       }else {
