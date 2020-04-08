@@ -5,7 +5,6 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Promise;
 import io.vertx.starter.database.AddressDatabaseVerticle;
 import io.vertx.starter.database.AddressRedisVerticle;
-import io.vertx.starter.utils.Runner;
 
 public class MainVerticle extends AbstractVerticle {
 

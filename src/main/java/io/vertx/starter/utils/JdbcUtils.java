@@ -3,6 +3,7 @@ package io.vertx.starter.utils;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.starter.constant.Constant;
 
 import java.util.Properties;
 
@@ -15,7 +16,7 @@ public class JdbcUtils {
   public static JDBCClient getDbClient(Vertx vertx){
 
     JsonObject dbConfig = new JsonObject();
-    PropertiesUtils propertiesUtils = new PropertiesUtils("/config/jdbc.properties");
+    PropertiesUtils propertiesUtils = new PropertiesUtils(Constant.CONFIG_DB_FILENAME);
     Properties queriesProps = propertiesUtils.readProperties();
     dbConfig.put("url", queriesProps.getProperty("jdbcUrl"));
     dbConfig.put("driver_class", queriesProps.getProperty("driverClassName"));

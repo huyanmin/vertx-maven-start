@@ -30,7 +30,7 @@ public interface AddressDatabaseService {
   AddressDatabaseService fetchAddress(String id, Handler<AsyncResult<List<JsonObject>>> resultHandler);
 
   @Fluent
-  AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<JsonObject>> resultHandler);
+  AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<Boolean>> resultHandler);
 
   @Fluent
   AddressDatabaseService saveAddress(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler);

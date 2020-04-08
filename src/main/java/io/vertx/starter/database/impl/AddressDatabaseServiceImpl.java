@@ -61,15 +61,13 @@ public class AddressDatabaseServiceImpl implements AddressDatabaseService {
   }
 
   @Override
-  public AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<JsonObject>> resultHandler) {
-    String id = UUID.randomUUID().toString().replace("-","");
-    JsonArray data = new JsonArray().add(id).add(jsonObject.getValue("name"))
+  public AddressDatabaseService createAddress(JsonObject jsonObject, Handler<AsyncResult<Boolean>> resultHandler) {
+    JsonArray data = new JsonArray().add(jsonObject.getValue("id")).add(jsonObject.getValue("name"))
       .add(jsonObject.getValue("phone")).add(jsonObject.getValue("cardNo")).add(jsonObject.getValue("addressType"))
       .add(jsonObject.getValue("isDefault")).add(jsonObject.getValue("address")).add(jsonObject.getValue("remark"));
     dbClient.updateWithParams(sqlQueries.get(SqlQuery.CREATE_ADDRESS), data, res -> {
       if (res.succeeded()) {
-        jsonObject.put("id", id);
-        resultHandler.handle(Future.succeededFuture(jsonObject));
+        resultHandler.handle(Future.succeededFuture(true));
       } else {
         LOGGER.error("Database query error", res.cause());
         resultHandler.handle(Future.failedFuture(res.cause()));

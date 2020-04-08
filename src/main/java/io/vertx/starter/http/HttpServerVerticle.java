@@ -11,13 +11,13 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.starter.constant.Constant;
 import io.vertx.starter.database.AddressDatabaseService;
 import io.vertx.starter.database.AddressRedisService;
-import io.vertx.starter.utils.HttpUtils;
 import io.vertx.starter.utils.PropertiesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -36,7 +36,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   public void start(Promise<Void> promise) throws Exception {
     HttpServer server = vertx.createHttpServer();
     String addressDbQueue = config().getString(Constant.CONFIG_ADDRESS_DB_QUEUE, Constant.CONFIG_ADDRESS_DB_QUEUE); // <1>
-    String addressRedisQueue = config().getString(Constant.CONFIG_REDIS_QUEUE, Constant.CONFIG_REDIS_QUEUE); // <1>
+    String addressRedisQueue = config().getString(Constant.CONFIG_REDIS_QUEUE, "redis-service-address"); // <1>
 
     //读取配置文件
     PropertiesUtils propertiesUtils = new PropertiesUtils(Constant.CONFIG_HTTP_FILENAME);
@@ -98,14 +98,14 @@ public class HttpServerVerticle extends AbstractVerticle {
         HttpUtils.fireJsonResponse(routingContext.response(), HTTP_OK, response.result().toString());
       }else {
         dbService.fetchAddress(id, result->{
-          if(response.succeeded()){
-              if(Objects.nonNull(result.result()) && response.result().size() > 0){
-                HttpUtils.fireJsonResponse(routingContext.response(), HTTP_OK, response.result().toString());
+          if(result.succeeded()){
+              if(Objects.nonNull(result.result()) && result.result().size() > 0){
+                routingContext.response().end(result.result().toString());
               }else {
-                HttpUtils.fireJsonResponse(routingContext.response(), HTTP_OK, "not find address data!");
+                routingContext.response().end("not find address data!");
               }
           }else {
-            routingContext.fail(response.cause());
+            routingContext.fail(result.cause());
           }
         });
       }
@@ -135,10 +135,12 @@ public class HttpServerVerticle extends AbstractVerticle {
    */
   private void pageCreateHandler(RoutingContext routingContext) {
     Buffer body = routingContext.getBody();
+    String id = UUID.randomUUID().toString().replace("-","");
     JsonObject jsonObject = new JsonObject(body.toString());
+    jsonObject.put("id", id);
+    redisService.addAddressCache(jsonObject, handler-> handler.succeeded());
     dbService.createAddress(jsonObject, reply->{
       if(reply.succeeded()){
-        redisService.refreshAddress(jsonObject, handler-> handler.succeeded());
         routingContext.response().end("create address successfully!");
       }else {
         routingContext.fail(reply.cause());
@@ -183,6 +185,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   private void pageDeletionAllHandler(RoutingContext routingContext) {
     dbService.deleteAllAddress(reply->{
       if(reply.succeeded()){
+        redisService.delAllAddressCache(handler-> handler.succeeded());
         routingContext.response().end("delete all address successfully!");
       }else {
         routingContext.fail(reply.cause());

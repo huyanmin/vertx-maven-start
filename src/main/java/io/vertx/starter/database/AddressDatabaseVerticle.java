@@ -7,10 +7,8 @@ import io.vertx.serviceproxy.ServiceBinder;
 import io.vertx.starter.enumpackage.SqlQuery;
 import io.vertx.starter.utils.JdbcUtils;
 import io.vertx.starter.utils.PropertiesUtils;
-import io.vertx.starter.utils.Runner;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
 

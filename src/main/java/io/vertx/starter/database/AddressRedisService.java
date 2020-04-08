@@ -8,10 +8,9 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.redis.client.Redis;
+import io.vertx.redis.RedisClient;
 import io.vertx.starter.database.impl.AddressRedisServiceImpl;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,10 +36,13 @@ public interface AddressRedisService {
   @Fluent
   AddressRedisService delAddressCache(String id, Handler<AsyncResult<Boolean>> resultHandler);
 
+  @Fluent
+  AddressRedisService delAllAddressCache(Handler<AsyncResult<Boolean>> resultHandler);
+
   // tag::create[]
   @GenIgnore
-  static AddressRedisService create(Redis client, Handler<AsyncResult<AddressRedisService>> readyHandler) {
-    return new AddressRedisServiceImpl(client, readyHandler);
+  static AddressRedisService create(RedisClient redisClient , Handler<AsyncResult<AddressRedisService>> readyHandler) {
+    return new AddressRedisServiceImpl(redisClient, readyHandler);
   }
 
   @GenIgnore
