@@ -1,6 +1,7 @@
 package io.vertx.starter.http;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -139,6 +140,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     String id = UUID.randomUUID().toString().replace("-","");
     jsonObject.put("id", id);
     redisService.addAddressCache(jsonObject, handler-> handler.succeeded());
+    //CompositeFuture.all()
     dbService.createAddress(jsonObject, reply->{
       if(reply.succeeded()){
         HttpUtils.fireJsonResponse(routingContext.response(), HTTP_OK, "create address successfully!");
